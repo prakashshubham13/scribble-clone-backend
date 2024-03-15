@@ -8,8 +8,8 @@ const isDev = app.settings.env === 'development';
 const URL = isDev ? 'http://localhost:3000' : '';
 app.use(cors());
 const httpServer = createServer(app);
-const io = new Server(httpServer, {cors: URL});
-
+const io = new Server(httpServer, {cors: {origin: '*'}});
+ 
 
 function countDownFunc(){
   return (timer,room)=>{
