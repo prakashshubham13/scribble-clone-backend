@@ -6,7 +6,7 @@ import { Server } from "socket.io";
 const app = express();
 const isDev = app.settings.env === 'development';
 const URL = isDev ? 'http://localhost:3000' : '';
-app.use(cors({origin: URL}));
+app.use(cors());
 const httpServer = createServer(app);
 const io = new Server(httpServer, {cors: URL});
 
@@ -97,6 +97,7 @@ io.on("connection", (socket) => {
 
 /**emit join once user joins the room */  
 socket.on('join',({name,room})=>{
+  console.log(name,room);
   socket.join(socket.id);/**join user */
   socket.join(room);/**join room */
   /**if user is the first user */
