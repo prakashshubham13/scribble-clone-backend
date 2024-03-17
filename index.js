@@ -76,9 +76,9 @@ function triggerSelect(io,room){
   player[room].forEach((data)=>{
     console.log("0000",data);
     if(data.id !== round[room].user)
-    io.sockets.to(data.id).emit('selecting');
+    io.sockets.to(data.id).emit('selecting',{currentUser:{name: round[room].name, id: round[room].user}});
   });
-  io.sockets.to(round[room].user).emit('select', {list: ["a","b","c","d"]});
+  io.sockets.to(round[room].user).emit('select', {list: ["car","phone","zoo"]});
   round[room].status = 'select';
 timer[room]['o_id'] = setTimeout(() => {
   stopClock(room);
@@ -126,6 +126,7 @@ socket.on('join',({name,room})=>{
       word: null,
       status: 'wait',
       user: socket.id,
+      name: name,
       image: null,
       answerCount: []
     };
@@ -285,4 +286,4 @@ app.get("/",()=>{
     console.log("dfdfdf");
 })
 
-httpServer.listen('https://scribble-clone-backend.onrender.com',()=>console.log("Backend is on"));
+httpServer.listen(5000,()=>console.log("Backend is on"));
