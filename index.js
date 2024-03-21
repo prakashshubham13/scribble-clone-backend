@@ -6,9 +6,9 @@ import { Server } from "socket.io";
 const app = express();
 const isDev = app.settings.env === 'development';
 const URL = isDev ? 'http://localhost:3000' : '';
-app.use(cors());
+app.use(cors('https://scribble-clone-frontend-1.onrender.com/'));
 const httpServer = createServer(app);
-const io = new Server(httpServer, {cors: {origin: '*'}});
+const io = new Server(httpServer, {cors: {origin: 'https://scribble-clone-frontend-1.onrender.com/'}});
  
 
 function countDownFunc(){
