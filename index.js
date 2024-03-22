@@ -6,16 +6,18 @@ import { Server } from "socket.io";
 const app = express();
 const isDev = app.settings.env === 'development';
 const URL = isDev ? 'http://localhost:3000' : '';
-app.use(cors('https://scribble-clone-frontend-1.onrender.com/'));
+app.use(cors());
 const httpServer = createServer(app);
-const io = new Server(httpServer, {cors: {origin: 'https://scribble-clone-frontend-1.onrender.com/'}});
+const io = new Server(httpServer, {cors: {origin: '*'}});
+import * as dotenv from 'dotenv';
+dotenv.config();
  
 
 function countDownFunc(){
   return (timer,room)=>{
     let id = setInterval(()=>{ 
       console.log(timer,room);
-  },timer);
+  },timer); 
   return id;
   }
 };
@@ -465,4 +467,4 @@ app.get("/",()=>{
     console.log("dfdfdf");
 })
 
-httpServer.listen(5000,()=>console.log("Backend is on"));
+httpServer.listen(process.env.APP_PORT,()=>console.log("Backend is on"));
