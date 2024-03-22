@@ -12,7 +12,7 @@ const io = new Server(httpServer, {cors: {origin: '*'}});
 import * as dotenv from 'dotenv';
 dotenv.config();
  
-
+app.get('/',(req,res)=>res.send('hello'));
 function countDownFunc(){
   return (timer,room)=>{
     let id = setInterval(()=>{ 
