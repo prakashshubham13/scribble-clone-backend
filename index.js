@@ -467,4 +467,4 @@ app.get("/",()=>{
     console.log("dfdfdf");
 })
 
-httpServer.listen(process.env.APP_PORT,()=>console.log("Backend is on"));
+httpServer.listen(process.env.APP_PORT,()=>console.log(`Backend is on ${process.env.APP_PORT}`));
