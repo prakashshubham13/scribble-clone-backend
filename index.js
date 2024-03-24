@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
     // round[room].status = 'draw';
     // io.sockets.in(room).emit('draw');
     // triggerClock(io,room);
-  }, 5000);
+  }, 20000);
   }
   
   /***Trigger Drawing post word selection */
@@ -143,13 +143,15 @@ io.on("connection", (socket) => {
     triggerClock(io,room);
     timer[room]['o_id'] = setTimeout(() => {
       triggerRoundEnd(io,room);
-    },15000);
+    },30000);
   }
   
   
   function triggerRoundEnd(io,room){ 
+
     stopClock(room);
     console.log(player[room]);
+    round[room].status = "end";
     io.sockets.in(room).emit('roundend',player[room]);  
     let index = player[room].map(data=>data.id).indexOf(round[room].user);
     console.log(index,"---index--",player[room].length);
@@ -187,6 +189,7 @@ console.log("player room",round[room]);
     {
       setTimeout(()=>{
       round[room].word = null;
+      io.sockets.emit('clearCanvas');
       triggerSelect(io,room);
     },3000);
   }
@@ -279,14 +282,24 @@ console.log("player joined room",socket.adapter.rooms);
 //check if game is already started 
 if(rooms[room] && player[room].length>=2){
   /**emit start game */
-  io.sockets.to(socket.id).emit("startGame");
+  // io.sockets.to(socket.id).emit("startGame");
 console.log(player[room].length,round[room].status,round[room].user);
 /**if someone is already drawing */
+console.log("00000000000=========",round[room].status);
   if(round[room].status === "draw"){
     console.log("id000",socket.id);
     /**emit to get latest drawing */console.log("getDraw");
     io.sockets.to(round[room].user).emit('getDraw',socket.id);
 
+  }
+  /**if someone is already selecting */
+      if(round[room].status === "select"){
+      socket.to(socket.id).emit('selecting',{currentUser:{name: round[room].name, id: round[room].user}});
+  }
+  /**if round has just ended*/
+    if(round[room].status === "end"){
+      socket.to(socket.id).emit("updateRoundNumber",round[room].number);
+      socket.to(socket.id).emit('roundend',player[room]);  
   }
 }
 console.log("--------------------------------------------------------------------------------------------------------------------");
@@ -304,7 +317,7 @@ socket.on("requestStartGame",(room)=>{
     // io.sockets.in(room).emit("startGame");
     console.log("trigger select");
     triggerSelect(io,room);
-  }else{
+  }else{ 
 
   }
   console.log("--------------------------------------------------------------------------------------------------------------------");
@@ -444,6 +457,22 @@ socket.on('start-round',(room)=>{
     }) 
 
 
+    socket.on('leaveRoom',(room)=>{
+      console.log("leave room");
+
+      if(player[room]){
+        player[room] = player[room].filter((data)=>data.id !== socket.id);
+  
+        io.sockets.in(room).emit("updatePlayerList",player[room]);
+        console.log(player[room]);
+        if(player[room].length === 1)
+        io.sockets.in(room).emit("dissolveRoom");
+        } 
+        
+      if(round[room].user === socket.id)
+      triggerRoundEnd(io,room);
+
+    })
     socket.on('disconnecting',(reason)=>{ 
       console.log("><><><",socket.adapter.rooms);
       console.log(socket.rooms.values());
@@ -455,11 +484,14 @@ socket.on('start-round',(room)=>{
       console.log("leave rooom-------",room);
       if(player[room]){
       player[room] = player[room].filter((data)=>data.id !== socket.id);
+
       io.sockets.in(room).emit("updatePlayerList",player[room]);
       console.log(player[room]);
       if(player[room].length === 1)
       io.sockets.in(room).emit("dissolveRoom");
-      }
+      } 
+      if(round[room].user === socket.id)
+      triggerRoundEnd(io,room);
     })
   });
 
